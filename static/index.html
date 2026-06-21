@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>My Drive</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Montserrat',sans-serif;
+}
+
+body{
+
+height:100vh;
+
+background:linear-gradient(
+135deg,
+#a6bcc0,
+#8ea9af
+);
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+}
+
+
+.card{
+
+width:600px;
+
+background:#f7f7f7;
+
+box-shadow:
+
+0 40px 100px rgba(0,0,0,.25);
+
+padding:70px;
+
+position:relative;
+
+}
+
+
+.card::before{
+
+content:"";
+
+position:absolute;
+
+top:0;
+
+left:0;
+
+height:6px;
+
+width:100%;
+
+background:#658a94;
+
+}
+
+
+
+.logo{
+
+font-size:60px;
+
+text-align:center;
+
+margin-bottom:10px;
+
+color:#658a94;
+
+}
+
+
+.title{
+
+text-align:center;
+
+font-size:48px;
+
+letter-spacing:6px;
+
+color:#658a94;
+
+font-weight:600;
+
+}
+
+
+.subtitle{
+
+text-align:center;
+
+margin-top:15px;
+
+color:#999;
+
+font-size:22px;
+
+margin-bottom:50px;
+
+}
+
+
+
+.input-box{
+
+background:#ececec;
+
+height:70px;
+
+display:flex;
+
+align-items:center;
+
+padding:0 25px;
+
+margin-bottom:25px;
+
+}
+
+
+.input-box input{
+
+width:100%;
+
+border:none;
+
+outline:none;
+
+background:transparent;
+
+font-size:22px;
+
+color:#658a94;
+
+}
+
+
+.input-box span{
+
+font-size:28px;
+
+color:#658a94;
+
+}
+
+
+
+.bottom{
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
+
+margin-top:15px;
+
+}
+
+
+
+.forgot{
+
+font-size:22px;
+
+color:#888;
+
+text-decoration:none;
+
+}
+
+
+
+button{
+
+width:280px;
+
+height:70px;
+
+border:none;
+
+background:#64d6cf;
+
+font-size:30px;
+
+color:white;
+
+letter-spacing:4px;
+
+cursor:pointer;
+
+transition:.3s;
+
+}
+
+
+
+button:hover{
+
+transform:translateY(-3px);
+
+box-shadow:0 15px 30px rgba(100,214,207,.4);
+
+}
+
+
+</style>
+
+</head>
+
+<body>
+
+
+<div class="card">
+
+
+<div class="logo">
+
+☁
+
+</div>
+
+
+<div class="title">
+
+MY DRIVE
+
+</div>
+
+
+<div class="subtitle">
+
+Secure. Private. Yours.
+
+</div>
+
+
+
+<div class="input-box">
+
+<input
+
+id="username"
+
+placeholder="Username"
+
+>
+
+<span>👤</span>
+
+</div>
+
+
+
+<div class="input-box">
+
+<input
+
+id="password"
+
+type="password"
+
+placeholder="Password"
+
+>
+
+<span>🔒</span>
+
+</div>
+
+
+
+<div class="bottom">
+
+<a class="forgot">
+
+Forgot Password?
+
+</a>
+
+
+<button onclick="login()">
+
+LOGIN
+
+</button>
+
+
+</div>
+
+
+</div>
+
+
+
+<script>
+
+async function login(){
+
+let user=document.getElementById("username").value;
+
+let pass=document.getElementById("password").value;
+
+const button = event.target;
+button.disabled = true;
+button.innerText = "Logging in...";
+
+
+if(!user || !pass){
+
+alert("Please enter username and password");
+button.disabled = false;
+button.innerText = "LOGIN";
+
+return;
+
+}
+
+
+try{
+
+// Call your FastAPI backend on the same Render app
+const response = await fetch("/login", {
+
+method: "POST",
+
+headers: {
+
+"Content-Type": "application/json"
+
+},
+
+body: JSON.stringify({
+
+username: user,
+
+password: pass
+
+})
+
+});
+
+
+const data = await response.json();
+
+
+if(response.ok && data.success){
+
+// Store token in localStorage (optional, for future authenticated requests)
+localStorage.setItem("token", data.token || "logged_in");
+
+window.location="dashboard.html";
+
+}
+
+else{
+
+alert(data.message || "Invalid credentials");
+
+}
+
+}
+
+catch(error){
+
+alert("Error connecting to server. Please try again.");
+
+console.error(error);
+
+}
+
+finally{
+
+button.disabled = false;
+button.innerText = "LOGIN";
+
+}
+
+}
+
+</script>
+
+
+
+</body>
+
+</html>
