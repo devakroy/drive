@@ -44,10 +44,6 @@ async def login(request: LoginRequest):
             "message": "Invalid username or password"
         }
 
-@app.get("/")
-async def root():
-    return {"message": "My Drive API is running"}
-
 @app.get("/health")
 async def health():
     return {"status": "ok"}
