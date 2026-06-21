@@ -48,8 +48,8 @@ async def login(request: LoginRequest):
 async def health():
     return {"status": "ok"}
 
-# Serve static files (HTML, CSS, JS)
-app.mount("/", StaticFiles(directory="static", html=True), name="static")
+# Serve frontend files from docs/ so the same files can be used by GitHub Pages
+app.mount("/", StaticFiles(directory="docs", html=True), name="static")
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", 8000)))
