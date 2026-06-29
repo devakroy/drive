@@ -362,24 +362,9 @@ Recent Files
 </tr>
 
 
-<tr>
+<tr id="files-placeholder">
 
-<td>resume.pdf</td>
-
-<td>1.2 MB</td>
-
-<td>Uploaded</td>
-
-</tr>
-
-
-<tr>
-
-<td>photo.jpg</td>
-
-<td>3.4 MB</td>
-
-<td>Uploaded</td>
+<td colspan="3">No uploads yet.</td>
 
 </tr>
 
@@ -417,39 +402,83 @@ return;
 }
 
 
-const fd=new FormData();
+const formData=new FormData();
 
-fd.append("file",file);
-
-
-// later
+formData.append("file",file);
 
 
-/*
+try{
 
-await fetch(
-
-"https://your-render-url/upload",
-
-{
+const response=await fetch("https://drive-wmwg.onrender.com/upload",{
 
 method:"POST",
 
-body:fd
+body:formData
+
+});
+
+const data=await response.json();
+
+if(response.ok && data.success){
+
+    alert(data.message);
+    await loadFileHistory();
+
+}else{
+
+    alert(data.detail || "Upload failed");
 
 }
 
-);
+}catch(error){
 
-*/
+alert("Error uploading file");
 
-
-alert(file.name+" uploaded");
-
-
+console.error(error);
 
 }
 
+}
+
+
+async function loadFileHistory(){
+    try{
+        const response = await fetch("/files");
+        if(!response.ok) throw new Error("Unable to load file history");
+        const data = await response.json();
+        const table = document.querySelector(".files table");
+        const rows = table.querySelectorAll("tr:not(:first-child)");
+        rows.forEach(row => row.remove());
+
+        if(!data.files || data.files.length === 0){
+            const placeholder = document.createElement("tr");
+            placeholder.innerHTML = '<td colspan="3">No uploads yet.</td>';
+            table.appendChild(placeholder);
+            return;
+        }
+
+        data.files.forEach(file => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td>${file.name}</td>
+                <td>${formatFileSize(file.size)}</td>
+                <td>${file.status}<br><small>${file.uploaded_at}</small></td>
+            `;
+            table.appendChild(row);
+        });
+    }catch(error){
+        console.error(error);
+    }
+}
+
+function formatFileSize(bytes){
+    if(bytes < 1024) return bytes + " B";
+    const kb = bytes / 1024;
+    if(kb < 1024) return kb.toFixed(1) + " KB";
+    return (kb / 1024).toFixed(1) + " MB";
+}
+
+window.addEventListener("DOMContentLoaded", loadFileHistory);
 
 </script>
 
