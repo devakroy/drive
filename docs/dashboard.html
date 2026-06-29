@@ -245,6 +245,55 @@ border-bottom:1px solid #eee;
 
 }
 
+.upload-queue{
+    margin-top:20px;
+}
+
+.upload-item{
+    display:flex;
+    align-items:center;
+    gap:15px;
+    padding:12px;
+    margin-bottom:12px;
+    background:#1d2533;
+    border-radius:10px;
+}
+
+.file-name{
+    width:220px;
+    color:white;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+
+.progress{
+    flex:1;
+    height:10px;
+    background:#444;
+    border-radius:20px;
+    overflow:hidden;
+}
+
+.progress-fill{
+    width:0%;
+    height:100%;
+    background:#00d4ff;
+    transition:width .2s;
+}
+
+.progress-text{
+    width:55px;
+    color:white;
+    text-align:right;
+}
+
+.status{
+    width:90px;
+    color:#8fd3ff;
+    text-align:right;
+}
+
 
 
 </style>
@@ -320,11 +369,12 @@ OR
 
 <br><br>
 
-<input type="file" id="file">
+<input type="file" id="file" multiple>
 
 <br>
 
 <button onclick="uploadFile()">
+    <div id="uploadQueue" class="upload-queue"></div>
 
 UPLOAD
 
@@ -390,17 +440,38 @@ window.location="index.html";
 
 async function uploadFile(){
 
-let file=document.getElementById("file").files[0];
+const files = document.getElementById("file").files;
 
 
-if(!file){
+if(files.length===0){
+    alert("Select at least one file");
+    return;
+}
+const queue = document.getElementById("uploadQueue");
 
-alert("Select a file");
+queue.innerHTML = "";
 
-return;
+for(const file of files){
+
+    const row = document.createElement("div");
+
+    row.className = "upload-item";
+
+    row.innerHTML = `
+        <div class="file-name">${file.name}</div>
+
+        <div class="progress">
+            <div class="progress-fill"></div>
+        </div>
+
+        <div class="progress-text">0%</div>
+
+        <div class="status">Waiting</div>
+    `;
+
+    queue.appendChild(row);
 
 }
-
 
 const formData=new FormData();
 
