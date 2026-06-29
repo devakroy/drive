@@ -71,14 +71,26 @@ async def upload_file(file: UploadFile):
         # Send to Telegram
         telegram_url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendDocument"
         
+        form = aiohttp.FormData()
+
+        form.add_field("chat_id", TELEGRAM_CHAT_ID)
+
+        form.add_field(
+            "caption",
+            f"File: {file.filename}"
+        )
+
+        form.add_field(
+            "document",
+            file_content,
+            filename=file.filename,
+            content_type=file.content_type or "application/octet-stream"
+        )
+
         async with aiohttp.ClientSession() as session:
             async with session.post(
                 telegram_url,
-                data={
-                    "chat_id": TELEGRAM_CHAT_ID,
-                    "caption": f"File: {file.filename}"
-                },
-                files={"document": (file.filename, file_content, file.content_type)}
+                data=form
             ) as response:
                 if response.status == 200:
                     file_size = len(file_content)
@@ -93,7 +105,11 @@ async def upload_file(file: UploadFile):
                         "message": f"File '{file.filename}' uploaded to Telegram successfully"
                     }
                 else:
-                    raise HTTPException(status_code=400, detail="Failed to send file to Telegram")
+                    error = await response.text()
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"Telegram error: {error}"
+                    )
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Upload error: {str(e)}")
