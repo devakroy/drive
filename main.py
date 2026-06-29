@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import os
+import traceback
 from datetime import datetime
 import uvicorn
 import aiohttp
@@ -111,8 +112,18 @@ async def upload_file(file: UploadFile):
                         detail=f"Telegram error: {error}"
                     )
     
+    except HTTPException:
+        raise
+
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Upload error: {str(e)}")
+        traceback.print_exc()
+        print("Exception type:", type(e))
+        print("Exception repr:", repr(e))
+
+        raise HTTPException(
+            status_code=500,
+            detail=f"{type(e).__name__}: {repr(e)}"
+        )
 
 @app.get("/files")
 async def list_files():
